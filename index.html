@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>School Accounting Analytics</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="logo">
+          <div class="logo-mark">SA</div>
+          <div class="logo-text">
+            <span class="logo-title">School Analytics</span>
+            <span class="logo-subtitle">Accounting Dashboard</span>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item nav-item-active" data-target="overview">
+            <span class="nav-dot"></span>
+            Overview
+          </button>
+          <button class="nav-item" data-target="fees">
+            <span class="nav-dot"></span>
+            Fees &amp; Dues
+          </button>
+          <button class="nav-item" data-target="expenses">
+            <span class="nav-dot"></span>
+            Expenses
+          </button>
+          <button class="nav-item" data-target="reports">
+            <span class="nav-dot"></span>
+            Reports
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-card">
+            <div class="user-avatar">A</div>
+            <div class="user-meta">
+              <span class="user-name">Admin</span>
+              <span class="user-role">Accounts Officer</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <h1 class="page-title">Accounting Analytics</h1>
+            <p class="page-subtitle">
+              Visualize school income, expenses, and fee collection in one place.
+            </p>
+          </div>
+
+          <div class="topbar-actions">
+            <div class="filter-group">
+              <select id="termFilter" class="select">
+                <option value="all">All sessions</option>
+                <option value="2024">Session 2024–25</option>
+                <option value="2023">Session 2023–24</option>
+              </select>
+              <select id="classFilter" class="select">
+                <option value="all">All classes</option>
+                <option value="Nursery">Nursery</option>
+                <option value="LKG">LKG</option>
+                <option value="UKG">UKG</option>
+                <option value="1">Class 1</option>
+                <option value="2">Class 2</option>
+                <option value="3">Class 3</option>
+                <option value="4">Class 4</option>
+                <option value="5">Class 5</option>
+                <option value="6">Class 6</option>
+                <option value="7">Class 7</option>
+                <option value="8">Class 8</option>
+                <option value="9">Class 9</option>
+                <option value="10">Class 10</option>
+              </select>
+            </div>
+            <div class="auth-group">
+              <span id="authStatus" class="auth-status">Guest mode</span>
+              <input
+                id="schoolIdInput"
+                type="text"
+                class="auth-input"
+                placeholder="School ID"
+              />
+              <input
+                id="schoolPinInput"
+                type="password"
+                class="auth-input"
+                placeholder="PIN"
+              />
+              <button id="loginBtn" class="btn btn-outline">Login</button>
+              <button id="logoutBtn" class="btn btn-outline btn-outline-danger" hidden>
+                Logout
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <section id="overviewSection" class="kpi-grid" aria-label="Key metrics">
+          <article class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Total Fees Billed</span>
+              <span class="kpi-tag kpi-tag-primary">This session</span>
+            </div>
+            <div class="kpi-value" id="kpiBilled">₹0</div>
+            <div class="kpi-footer">
+              <span class="kpi-change kpi-change-up" id="kpiBilledChange">
+                ↑ 0% vs last session
+              </span>
+            </div>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Fees Collected</span>
+              <span class="kpi-tag kpi-tag-success">Collection</span>
+            </div>
+            <div class="kpi-value" id="kpiCollected">₹0</div>
+            <div class="kpi-footer">
+              <span class="kpi-change kpi-change-up" id="kpiCollectionRate">
+                0% collection rate
+              </span>
+            </div>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Outstanding Dues</span>
+              <span class="kpi-tag kpi-tag-warning">Attention</span>
+            </div>
+            <div class="kpi-value" id="kpiOutstanding">₹0</div>
+            <div class="kpi-footer">
+              <span class="kpi-change kpi-change-down" id="kpiOutstandingShare">
+                0% of total fees
+              </span>
+            </div>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-label">Net Balance</span>
+              <span class="kpi-tag kpi-tag-info">Income - Expenses</span>
+            </div>
+            <div class="kpi-value" id="kpiNetBalance">₹0</div>
+            <div class="kpi-footer">
+              <span class="kpi-change kpi-change-up" id="kpiNetTrend">
+                Stable
+              </span>
+            </div>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <article id="expensesSection" class="panel">
+            <header class="panel-header">
+              <div>
+                <h2 class="panel-title">Monthly Cashflow</h2>
+                <p class="panel-subtitle">
+                  Compare monthly receipts and expenses.
+                </p>
+              </div>
+              <div class="panel-actions">
+                <button class="chip chip-active" data-range="current">
+                  Current session
+                </button>
+                <button class="chip" data-range="previous">Last session</button>
+              </div>
+            </header>
+            <div class="panel-body panel-body-chart">
+              <canvas id="cashflowChart" aria-label="Monthly cashflow chart"></canvas>
+            </div>
+          </article>
+
+          <article class="panel">
+            <header class="panel-header">
+              <div>
+                <h2 class="panel-title">Fee Collection by Class</h2>
+                <p class="panel-subtitle">
+                  Identify classes with higher outstanding dues.
+                </p>
+              </div>
+            </header>
+            <div class="panel-body panel-body-chart">
+              <canvas id="classCollectionChart" aria-label="Fee collection by class chart"></canvas>
+            </div>
+          </article>
+
+          <article id="feesSection" class="panel panel-table panel-span-2">
+            <header class="panel-header">
+              <div>
+                <h2 class="panel-title">Outstanding Student Dues</h2>
+                <p class="panel-subtitle">
+                  Sorted by highest pending amount. Add or remove students easily.
+                </p>
+              </div>
+              <div class="panel-actions">
+                <input
+                  id="searchStudent"
+                  type="search"
+                  class="search-input"
+                  placeholder="Search student or class..."
+                />
+              </div>
+            </header>
+            <div class="panel-body panel-body-table">
+              <div class="student-form" aria-label="Add new student">
+                <div class="student-form-row">
+                  <input
+                    id="studentName"
+                    type="text"
+                    class="student-input"
+                    placeholder="Student name"
+                  />
+                  <select id="studentClass" class="student-input">
+                    <option value="">Class</option>
+                    <option value="Nursery">Nursery</option>
+                    <option value="LKG">LKG</option>
+                    <option value="UKG">UKG</option>
+                    <option value="1">Class 1</option>
+                    <option value="2">Class 2</option>
+                    <option value="3">Class 3</option>
+                    <option value="4">Class 4</option>
+                    <option value="5">Class 5</option>
+                    <option value="6">Class 6</option>
+                    <option value="7">Class 7</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                  </select>
+                  <input
+                    id="studentRoll"
+                    type="text"
+                    class="student-input"
+                    placeholder="Roll no."
+                  />
+                  <input
+                    id="studentTotal"
+                    type="number"
+                    class="student-input"
+                    placeholder="Total fees (₹)"
+                    min="0"
+                  />
+                  <input
+                    id="studentPaid"
+                    type="number"
+                    class="student-input"
+                    placeholder="Paid (₹)"
+                    min="0"
+                  />
+                  <input
+                    id="studentDate"
+                    type="text"
+                    class="student-input"
+                    placeholder="Last payment (Nepali date)"
+                  />
+                  <button id="addStudentBtn" class="btn btn-primary">
+                    Add student
+                  </button>
+                </div>
+              </div>
+              <div class="guardian-section">
+                <div class="guardian-header">
+                  <h3 class="guardian-title">Guardian quick view</h3>
+                  <p class="guardian-subtitle">
+                    Enter roll no. or student name to see paid, due and last payment date.
+                  </p>
+                </div>
+                <div class="guardian-row">
+                  <input
+                    id="guardianQuery"
+                    type="text"
+                    class="student-input guardian-input"
+                    placeholder="Roll no. or student name"
+                  />
+                  <button id="guardianFindBtn" class="btn btn-outline">
+                    Find student
+                  </button>
+                </div>
+                <div id="guardianCard" class="guardian-card" aria-live="polite"></div>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Class</th>
+                    <th>Roll No.</th>
+                    <th>Total Fees</th>
+                    <th>Paid</th>
+                    <th>Outstanding</th>
+                    <th>Last Payment (NP)</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="duesTableBody">
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
